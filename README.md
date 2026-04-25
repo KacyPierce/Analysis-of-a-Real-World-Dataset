@@ -5,6 +5,7 @@
 CREATE DATABASE belhaven_hospital_db;
 
 -- Created the departments table first, as doctors will reference it
+
 CREATE TABLE departments (
     department_id SERIAL PRIMARY KEY,
     department_name VARCHAR(100) UNIQUE NOT NULL,
@@ -12,6 +13,7 @@ CREATE TABLE departments (
 );
 
 -- Created the doctors table
+
 CREATE TABLE doctors (
     doctor_id SERIAL PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
@@ -23,6 +25,7 @@ CREATE TABLE doctors (
 );
 
 -- Created the patients table
+
 CREATE TABLE patients (
     patient_id SERIAL PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
@@ -33,6 +36,7 @@ CREATE TABLE patients (
 );
 
 -- Created the appointments table
+
 CREATE TABLE appointments (
     appointment_id SERIAL PRIMARY KEY,
     patient_id INTEGER NOT NULL REFERENCES patients(patient_id),
@@ -42,6 +46,7 @@ CREATE TABLE appointments (
 );
 
 -- Created the treatments table
+
 CREATE TABLE treatments (
     treatment_id SERIAL PRIMARY KEY,
     appointment_id INTEGER NOT NULL,
@@ -50,6 +55,7 @@ CREATE TABLE treatments (
 );
 
 -- Created the medications table
+
 CREATE TABLE medications (
     medication_id SERIAL PRIMARY KEY,
     treatment_id INTEGER NOT NULL REFERENCES treatments(treatment_id),
@@ -58,6 +64,7 @@ CREATE TABLE medications (
 );
 
 -- Created the billing table
+
 CREATE TABLE billing (
     billing_id SERIAL PRIMARY KEY,
     appointment_id INTEGER NOT NULL,
@@ -66,6 +73,7 @@ CREATE TABLE billing (
 );
 
 --Testing to confirm each table in the Database.
+
 SELECT * FROM departments;
 SELECT * FROM doctors;
 SELECT * FROM patients;
@@ -75,6 +83,7 @@ SELECT * FROM medications;
 SELECT * FROM billing;
 
 -- Import csv files
+
 COPY departments (department_name, location)
 FROM 'C:/Users/Public/Documents/departments.csv'
 DELIMITER ',' CSV HEADER
@@ -105,6 +114,7 @@ DELIMITER ',' CSV HEADER;
 
 
 --Testing to confirm each table in the Database.
+
 SELECT * FROM departments;
 SELECT * FROM doctors;
 SELECT * FROM patients;
@@ -114,18 +124,22 @@ SELECT * FROM medications;
 SELECT * FROM billing;
 
 --Adding a new column to patients (e.g., insurance_provider with a default value).
+
 ALTER TABLE patients 
 ADD COLUMN insurance_provider VARCHAR(100) DEFAULT 'Uninsured';
 
 --Renaming a column in appointments (e.g., reason → visit_reason).
+
 ALTER TABLE appointments 
 RENAME COLUMN reason TO visit_reason;
 
 --Changing a column’s data type (e.g., phone number length or billing total to NUMERIC(8,2)).
+
 ALTER TABLE billing
 ALTER COLUMN total_amount TYPE NUMERIC(8,2);
 
 --Adding a CHECK constraint to an existing column (e.g., ensure total_amount > 0).
+
 ALTER TABLE billing
 ADD CONSTRAINT chk_total_amount CHECK (total_amount > 0);
 
@@ -138,7 +152,9 @@ CREATE TABLE treatments (
 	treatment_cost NUMERIC(8,2)
 );
 
+
 --1. INNER JOIN
+
 SELECT 
     p.first_name AS patient_first_name, 
     p.last_name AS patient_last_name,
@@ -152,7 +168,9 @@ INNER JOIN
 INNER JOIN 
     doctors d ON a.doctor_id = d.doctor_id;
 
+
 --2. LEFT JOIN: Display all patients and their appointments, including those without any
+
 SELECT 
     p.first_name, 
     p.last_name, 
@@ -162,7 +180,9 @@ FROM
 LEFT JOIN 
     appointments a ON p.patient_id = a.patient_id;
 
+
 --3. RIGHT JOIN: Display all doctors and the patients they've seen, including doctors with no appointments
+
 SELECT 
     d.first_name AS doctor_first_name, 
     d.last_name AS doctor_last_name,
@@ -175,7 +195,9 @@ RIGHT JOIN
 RIGHT JOIN
     doctors d ON a.doctor_id = d.doctor_id;
 
+
 --4. GROUP BY with Aggregate: Count total appointments per doctor
+
 SELECT 
     d.first_name, 
     d.last_name, 
@@ -187,7 +209,9 @@ LEFT JOIN
 GROUP BY 
     d.doctor_id, d.first_name, d.last_name;
 
+
 --5. HAVING: Identify doctors with more than two appointments
+
 SELECT 
     d.first_name, 
     d.last_name, 
@@ -201,7 +225,9 @@ GROUP BY
 HAVING 
     COUNT(a.appointment_id) > 2;
 
+
 --6. Subquery (Single Row): Display the patient with the earliest appointment
+
 SELECT 
     first_name, 
     last_name
@@ -216,7 +242,9 @@ WHERE
                       appointment_date ASC
                   LIMIT 1);
 
+
 --7. Subquery (Multi-row): List all patients who have been prescribed a specific medication (e.g., 'Ibuprofen')
+
 SELECT 
     first_name, 
     last_name
@@ -230,7 +258,9 @@ WHERE
                    WHERE 
                       medication_name = 'Ibuprofen');
 
+
 --8. EXISTS: Find patients who have received at least one treatment
+
 SELECT 
     first_name, 
     last_name
@@ -244,7 +274,9 @@ WHERE
             WHERE 
                 t.patient_id = p.patient_id);
 
+
 --9. Nested Query: Display all appointments for patients younger than the average age
+
 SELECT *
 FROM appointments
 WHERE patient_id IN (
@@ -256,7 +288,9 @@ WHERE patient_id IN (
     )
 );
 
+
 --10. Window Function (PostgreSQL-only): Rank doctors by the total number of appointments
+
 SELECT 
     d.first_name,
     d.last_name,
@@ -277,10 +311,14 @@ CREATE TABLE departments (
     department_name VARCHAR(100) NOT NULL
 );
 
+
 --Use DROP TABLE IF EXISTS to remove optional tables without causing errors.
+
 DROP TABLE IF EXISTS optional_feature_table;
 
+
 --Verify that dependent tables respond correctly to cascading drops.
+
 SELECT * FROM departments;
 
 SELECT * FROM department_name;
